@@ -34,6 +34,7 @@ function compatRequire(name, windowName) {
 const assert = compatRequire("chai").assert,
     sinon = compatRequire("sinon"),
     path = compatRequire("path"),
+    pkg = compatRequire("../../package.json"),
     Linter = compatRequire("../../lib/linter", "eslint");
 
 //------------------------------------------------------------------------------
@@ -3188,6 +3189,17 @@ describe("Linter", () => {
 
             linter.defineRule("foo-bar-baz", spy);
             linter.verify("x", { rules: { "foo-bar-baz": "error" } });
+            assert(spy.calledOnce);
+        });
+
+        it("should pass 'version' to rule contexts with the ESLint version", () => {
+            const spy = sandbox.spy(context => {
+                assert.strictEqual(context.version, pkg.version);
+                return {};
+            });
+
+            linter.defineRule("verify-version", spy);
+            linter.verify("x", { rules: { "verify-version": "error" } });
             assert(spy.calledOnce);
         });
     });
